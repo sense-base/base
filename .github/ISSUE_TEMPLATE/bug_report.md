@@ -1,3 +1,4 @@
+<!--
 #  Copyright (c) University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,6 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+-->
 ---
 name: "\U0001F41B Bug Report"
 about: If you are pretty sure you are getting a bug, please create a report to help us improve this work

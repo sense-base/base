@@ -1,3 +1,4 @@
+<!--
 #  Copyright (c) University College London
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +12,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-<!-- Replace {issue_number} with the issue that will be closed after merging this PR -->
+-->
 ## Description
+<!-- Replace {issue_number} with the issue that will be closed after merging this PR -->
 Fixes #{issue_number}: A few sentences describing the changes proposed in this pull request.
 
 ## Type of change
