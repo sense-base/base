@@ -1,5 +1,5 @@
 ---
-name: "\U0001F680 Feature Request"
+name: "\U0001F680 Feature/Task Request"
 about: Submit a proposal/request for a new feature
 title: New Feature Request or Task
 labels: 'enhancement'
