@@ -1,0 +1,14 @@
+services:
+  main_container:
+    image: baseros2:latest
+    container_name: baseros2_v0.0.1
+    build:
+      context: ..
+      # cache_from:
+      #   - baseros2:latest
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        USER: ${USER}
+    platform: linux/x86_64
+    volumes:
+      - ${PWD}/..:/home/${USER}/workspace
