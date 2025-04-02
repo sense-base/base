@@ -93,22 +93,6 @@ RUN apt-get update -q && add-apt-repository universe && \
 
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
 
-
-# TO REVIEW AND MAYBE REMOVE SOME OF THESE LINES
-# COPY *neural_depth_2.0_2080.model /usr/local/zed/resources/neural_depth_2.0.model
-# COPY *.8600_timing_cache /usr/local/zed/resources/.8600_timing_cache
-# COPY *.neural_depth_2.0.model_optimized-fbcbl-1-75-12020-8801-8600-25-384-6144-48-64-512-72-0-0e53-512 /usr/local/zed/resources/.neural_depth_2.0.model_optimized-fbcbl-1-75-12020-8801-8600-25-384-6144-48-64-512-72-0-0e53-512
-# COPY *SN21837864.conf /usr/local/zed/settings/
-
-
-# Install gazebo
-# RUN wget https://packages.osrfoundation.org/gazebo.gpg -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
-#   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null \
-#   && apt-get update && apt-get install -q -y --no-install-recommends \
-#     ros-iron-gazebo* \
-#   && rm -rf /var/lib/apt/lists/*
-
-#...
 # Allow container to stop. See: https://github.com/microsoft/vscode-remote-release/issues/3512#issuecomment-1267053890
 # NOTE: Long interval is necessary so container is not closed during vscode initialization
-# CMD while sleep 120 && ps aux | egrep 'vscode.*[b]ootstrap-fork.*extensionHost.*' > /dev/null; do :; done
+CMD while sleep 120 && ps aux | egrep 'vscode.*[b]ootstrap-fork.*extensionHost.*' > /dev/null; do :; done

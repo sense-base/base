@@ -5,20 +5,22 @@
   * In linux: [:link:](https://docs.docker.com/engine/install) and [:link:](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04).
   * In mac or windows: [:link:](https://www.docker.com/products/docker-desktop/).
 
-## Build docker image
+
+## Using terminal in Ubuntu
+### Build docker image
 * Building estimated time will depend on internet speed connetion
 ```
 docker compose -f docker-compose.yml build
 ```
 
-## Checking built docker image
+### Checking built docker image
 ```
 docker images
 #REPOSITORY   TAG     IMAGE ID      CREATED         SIZE
 baseros2      latest  <ID>          <time lenght>         23.1GB
 ```
 
-## Launch and test docker image
+### Launch and test docker image
 ```
 bash launch_image.bash
 
@@ -31,12 +33,17 @@ ros2 topic list
 type `exit` to exit container
 ```
 
-## Stop container and remove it
+### Stop container and remove it
 ```
 bash stop_container_and_removeit.bash
 ```
 
-## Few usueful docker commands
+## Using [Visual Studio Code](https://code.visualstudio.com/)
+1. Open a terminal into the loaded container in VSCode using the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension.
+
+
+## References
+### Few usueful docker commands
 ```
 docker images
 docker ps
