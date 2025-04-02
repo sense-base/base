@@ -1,25 +1,24 @@
-# Trusted research environments (TREs) using docker
+# Setting up and building docker images
 
-## Setting up and building docker images
+## Requirements
+* Install docker tools 
+  * In linux: [:link:](https://docs.docker.com/engine/install) and [:link:](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04).
+  * In mac or windows: [:link:](https://www.docker.com/products/docker-desktop/).
 
-### Requirements
-Install docker tools in linux: https://docs.docker.com/engine/install/ and https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04
-Install docker tools in mac or windows: https://www.docker.com/products/docker-desktop/
- 
-### Build docker image
+## Build docker image
 * Building estimated time will depend on internet speed connetion
 ```
 docker compose -f docker-compose.yml build
 ```
 
-### Checking built docker image
+## Checking built docker image
 ```
 docker images
 #REPOSITORY   TAG     IMAGE ID      CREATED         SIZE
-baseros2      latest  <ID>          <? ago>         23.1GB
+baseros2      latest  <ID>          <time lenght>         23.1GB
 ```
 
-### Launch and test docker image
+## Launch and test docker image
 ```
 bash launch_image.bash
 
@@ -28,14 +27,16 @@ source /opt/ros/humble/setup.bash
 # sanity checks and display topics
 ros2 wtf
 ros2 topic list
+
+type `exit` to exit container
 ```
 
-### Stop container and remove it
+## Stop container and remove it
 ```
 bash stop_container_and_removeit.bash
 ```
 
-### Few usueful docker commands
+## Few usueful docker commands
 ```
 docker images
 docker ps
