@@ -9,7 +9,7 @@ Install docker tools in mac or windows: https://www.docker.com/products/docker-d
 ### Build docker image
 * Building estimated time will depend on internet speed connetion
 ```
-docker compose -f docker-compose.yml build # 1359.8s (13/13) FINISHED
+docker compose -f docker-compose.yml build
 ```
 
 ### Checking built docker image
