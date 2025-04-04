@@ -8,15 +8,15 @@
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
 		"DISPLAY": ":0",
-		// "XAUTHORITY": "/root/.Xauthority"
+		"XAUTHORITY": "/root/.Xauthority"
 	},
 	"privileged": true,
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
-		// "--device", "nvidia.com/gpu=all",
-		// "--volume=/tmp/.X11-unix:/tmp/.X11-unix",
-		// "--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
+		"--device", "nvidia.com/gpu=all",
+		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
 	"remoteUser": "root",
 	"containerUser": "root",
