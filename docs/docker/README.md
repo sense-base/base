@@ -2,8 +2,8 @@
 
 ## Requirements
 * Install docker tools 
-  * In linux: [:link:](https://docs.docker.com/engine/install) and [:link:](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04).
-  * In mac or windows: [:link:](https://www.docker.com/products/docker-desktop/).
+  * In GNU/Linux: [:link:](https://docs.docker.com/engine/install) and [:link:](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04).
+  * In Mac or Windows: [:link:](https://www.docker.com/products/docker-desktop/).
 
 
 ## Using terminal in GNU/Linux OS distributions
