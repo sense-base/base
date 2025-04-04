@@ -14,7 +14,8 @@
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
-		"--device", "nvidia.com/gpu=all",
+		"--runtime=nvidia",
+		"--gpus=all",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
