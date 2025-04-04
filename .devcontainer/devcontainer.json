@@ -8,7 +8,6 @@
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
 		"DISPLAY": ":0",
-		// comment out the following line on non-linux systems
 		"XAUTHORITY": "/root/.Xauthority"
 	},
 	"privileged": true,
