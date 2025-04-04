@@ -6,6 +6,9 @@
 ## :eyeglasses: Overview
 This repository contains documentation and code for base project. 
 
+## :school_satchel: Getting started
+* :computer: [Setting up ROS2 with docker container](docs/docker/README.md)
+
 ## :octocat: Cloning repository and contribute to it
 * Generate your SSH keys as suggested [here](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
 * Setup you commit signature verification as shown [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#ssh-commit-signature-verification)
