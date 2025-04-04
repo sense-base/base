@@ -3,7 +3,7 @@ services:
     image: baseros2:latest
     container_name: baseros2_v0.0.1
     build:
-      context: ..
+      context: ../../
       # cache_from:
       #   - baseros2:latest
       dockerfile: .devcontainer/Dockerfile

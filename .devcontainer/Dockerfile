@@ -88,7 +88,6 @@ RUN apt-get update -q && add-apt-repository universe && \
     ros-${ROS_DISTRO}-robot-localization \
     ros-${ROS_DISTRO}-common-interfaces \
     ros-${ROS_DISTRO}-rmw-cyclonedds-cpp && \
-    # ros-${ROS_DISTRO}-common-interfaces && \
     rm -rf /var/lib/apt/lists/*
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
