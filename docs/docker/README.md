@@ -41,8 +41,7 @@ bash stop_container_and_removeit.bash
 ```
 
 ## Using [Visual Studio Code](https://code.visualstudio.com/)
-1. Open a terminal into the loaded container in VSCode using the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension.
-
+1. Open your project VSCode that requires [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension. Once project is open in VSCode you will automatically see and click `Reopen in Container`.
 
 ## References
 ### Few useful commands to manage your docker images
