@@ -35,6 +35,7 @@ RUN apt-get update -qq && \
     python3 \
     gdb \
     git \
+    git-core \
     bash-completion \
     openssh-client \
     python3-argcomplete \
@@ -53,7 +54,8 @@ RUN apt-get update -qq && \
     libmagic-mgc \
     libmagic1 \
     software-properties-common \
-    curl && \
+    curl \
+    bash-completion && \
     rm -rf /var/lib/apt/lists/*
 
 ###########################
@@ -97,4 +99,6 @@ ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
 
-CMD while sleep 120 && ps aux | egrep 'vscode.*[b]ootstrap-fork.*extensionHost.*' > /dev/null; do :; done
+# Allow container to stop. See: https://github.com/microsoft/vscode-remote-release/issues/3512#issuecomment-1267053890
+ # NOTE: Long interval is necessary so container is not closed during vscode initialization
+ CMD while sleep 120 && ps aux | egrep 'vscode.*[b]ootstrap-fork.*extensionHost.*' > /dev/null; do :; done
