@@ -43,6 +43,38 @@ bash stop_container_and_removeit.bash
 ## Using [Visual Studio Code](https://code.visualstudio.com/)
 1. Open your project VSCode that requires [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension. Once project is open in VSCode you will automatically see and click `Reopen in Container`.
 
+## MacOS
+
+Using the provided Dockerfile and devcontainer setup on macOS has some limitations due to the lack of GPU passthrough and X11 support. However, you can still use the container to develop ROS2 applications with some adjustments.
+
+### Limitations:
+1. **No NVIDIA GPU Passthrough:**
+   - macOS does not support passing an NVIDIA GPU to Docker containers. As a result, GPU-dependent features, such as the ZED SDK, cannot be used inside the container.
+   
+2. **No XAUTHORITY Support:**
+   - X11 forwarding is not supported on macOS.
+
+### Adjustments for macOS:
+To make the container work on macOS, you need to comment out or remove certain lines in the Dockerfile and devcontainer.json:
+
+1. **In the Dockerfile:**
+   - Comment out the following lines related to the ZED SDK:
+     ```dockerfile
+     # RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
+     #     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
+     #     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
+     #     rm ZED_SDK_Linux_Ubuntu22.run && \
+     #     rm -rf /var/lib/apt/lists/*
+     ```
+
+2. **In devcontainer.json:**
+   - Comment out or remove the following lines related to GPU and XAUTHORITY:
+     ```jsonc
+     //"--device", "nvidia.com/gpu=all",
+     //"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+     //"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
+     ```
+
 ## References
 ### Few useful commands to manage your docker images
 ```
