@@ -1,4 +1,4 @@
-FROM docker.io/nvidia/cuda:12.5.0-devel-ubuntu22.04 AS dev_container_auto_added_stage_label
+FROM docker.io/nvidia/cuda:12.5.0-devel-ubuntu22.04
 
 ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
