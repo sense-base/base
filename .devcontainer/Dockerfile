@@ -68,12 +68,12 @@ RUN pip3 install torch torchvision timm opencv-python transforms3d pyopengl setu
 # STEREOLABS ZED
 ################
 # comment out the following line on non-GPU platforms
-# RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
-#     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
-#     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-#     rm ZED_SDK_Linux_Ubuntu22.run && \
-#     rm -rf /var/lib/apt/lists/*
-# RUN mkdir -p /root/Documents/ZED/
+RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
+    chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
+    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
+    rm ZED_SDK_Linux_Ubuntu22.run && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /root/Documents/ZED/
 
 ######
 # ROS 

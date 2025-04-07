@@ -15,9 +15,9 @@
 		"--rm",
 		"--shm-size=1g",
 		// comment out the following lines on non-linux systems
-		// "--device", "nvidia.com/gpu=all",
-		// "--volume=/tmp/.X11-unix:/tmp/.X11-unix",
-		// "--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
+		"--device", "nvidia.com/gpu=all",
+		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
 	"remoteUser": "root",
 	"containerUser": "root",

@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 import numpy as np
 from std_msgs.msg import Header
-from eeg_msgs.msg import EEGBlock  # Import our custom message
+from eeg_msgs.msg import EEGBlock
 
 class MockEEGPublisher(Node):
     def __init__(self):
