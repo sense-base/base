@@ -4,7 +4,7 @@
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind,consistency=cached", 
+	"workspaceMount": "source=${localWorkspaceFolder}/../sense_eeg,target=/workspace/,type=bind,consistency=cached", 
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
 		"DISPLAY": ":0",
