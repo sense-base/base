@@ -58,22 +58,10 @@ Using the provided Dockerfile and devcontainer setup on macOS has some limitatio
 To make the container work on macOS, you need to comment out or remove certain lines in the Dockerfile and devcontainer.json:
 
 1. **In the Dockerfile:**
-   - Comment out the following lines related to the ZED SDK:
-     ```dockerfile
-     # RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
-     #     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
-     #     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-     #     rm ZED_SDK_Linux_Ubuntu22.run && \
-     #     rm -rf /var/lib/apt/lists/*
-     ```
+   - Comment out the lines related to the ZED SDK. See the relevant section in the [Dockerfile](../../.devcontainer/Dockerfile#L73-L79).
 
 2. **In devcontainer.json:**
-   - Comment out or remove the following lines related to GPU and XAUTHORITY:
-     ```jsonc
-     //"--device", "nvidia.com/gpu=all",
-     //"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
-     //"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
-     ```
+   - Comment out or remove the lines related to GPU and XAUTHORITY. See the relevant section in [devcontainer.json](../../.devcontainer/devcontainer.json#L18-L23).
 
 ## References
 ### Few useful commands to manage your docker images
