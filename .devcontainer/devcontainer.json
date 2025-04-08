@@ -1,10 +1,10 @@
 {
-	"name": "ROS2",
+	"name": "base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"mounts": ["source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind,consistency=cached"], 
+	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind,consistency=cached", 
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
 		"DISPLAY": ":0",
@@ -14,7 +14,10 @@
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
-		"--device", "nvidia.com/gpu=all",
+		"--device-cgroup-rule=c *:* rmw",
+		"--device-cgroup-rule=c 189:* rwm",
+		"--runtime=nvidia",
+		"--gpus=all",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
