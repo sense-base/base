@@ -1,15 +1,19 @@
 FROM docker.io/nvidia/cuda:12.5.0-devel-ubuntu22.04
 
+ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 ARG USERNAME=root
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-ENV QT_X11_NO_MITSHM 1
+# Disable GPU-specific variables on non-GPU platforms like macOS
+# This will be handled by build args or runtime settings.
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES \
     ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}compute,video,utility,graphics
+ENV QT_X11_NO_MITSHM 1
 
+# General environment variables
 ENV PIP_ROOT_USER_ACTION=ignore
 ENV ROS_DISTRO=humble
 ENV AMENT_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
@@ -25,7 +29,8 @@ RUN echo "Europe/London" > /etc/localtime ; echo "CUDA Version 12.5.0" > /usr/lo
 #############################
 # Install necessary libraries
 #############################
-RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     python3 \
@@ -63,6 +68,7 @@ RUN pip3 install torch torchvision timm opencv-python transforms3d pyopengl setu
 ################
 # STEREOLABS ZED
 ################
+# comment out the following line on non-GPU platforms
 RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
@@ -91,7 +97,6 @@ RUN apt-get update -q && add-apt-repository universe && \
     rm -rf /var/lib/apt/lists/*
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-
 
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
 
