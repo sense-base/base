@@ -1,5 +1,5 @@
 {
-	"name": "base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
+	"name": "sense-base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
