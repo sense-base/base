@@ -1,23 +1,25 @@
 {
-	"name": "base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
+	"name": "base ROS2 with cuda-12.6.0-devel-ubuntu24.04",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind,consistency=cached", 
+	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind", 
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
-		"DISPLAY": ":0",
-		"XAUTHORITY": "/root/.Xauthority"
-	},
-	"privileged": true,
+		"DISPLAY": "${localEnv:DISPLAY}",
+		"XAUTHORITY": "/root/.Xauthority",
+		"NVIDIA_DRIVER_CAPABILITIES": "all"
+		},
 	"runArgs": [
 		"--rm",
-		"--shm-size=1g",
-		"--device-cgroup-rule=c *:* rmw",
-		"--device-cgroup-rule=c 189:* rwm",
-		"--runtime=nvidia",
-		"--gpus=all",
+		"--shm-size=32g",
+		"--device", "nvidia.com/gpu=all",
+		"--security-opt=label=disable",
+		// "--device-cgroup-rule=c *:* rmw",
+		// "--device-cgroup-rule=c 189:* rwm",
+		// "--runtime=nvidia",
+		// "--gpus=all",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
@@ -29,9 +31,14 @@
 			"extensions": [
 				"ms-iot.vscode-ros",
 				"charliermarsh.ruff",
-				"vscodevim.vim"
+				"vscodevim.vim",
+				"ms-python.python",
+				"ms-toolsai.datawrangler",
+				"ms-python.debugpy",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.jupyter-keymap",
+				"Github.copilot"
 			]
 		}
-	},
-	"overrideCommand": false
+	}
 }
