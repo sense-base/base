@@ -7,7 +7,7 @@
 	"workspaceMount": "source=${localWorkspaceFolder}/../sense_eeg,target=/workspace/,type=bind,consistency=cached", 
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
-		"DISPLAY": ":0",
+		"DISPLAY": "${localEnv:DISPLAY}",
 		"XAUTHORITY": "/root/.Xauthority"
 	},
 	"privileged": true,
