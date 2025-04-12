@@ -24,7 +24,10 @@ ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
 ENV ROS_PYTHON_VERSION=3
 ENV ROS_VERSION=2
 
-RUN echo "Europe/London" > /etc/localtime ; echo "CUDA Version 12.5.0" > /usr/local/cuda/version.txt
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
+# RUN echo "" > /etc/localtime
+RUN echo "CUDA Version 12.5.0" > /usr/local/cuda/version.txt
 
 #############################
 # Install necessary libraries
@@ -99,6 +102,7 @@ RUN apt-get update -q && add-apt-repository universe && \
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
+RUN . /opt/ros/${ROS_DISTRO}/setup.sh
 
 # Allow container to stop. See: https://github.com/microsoft/vscode-remote-release/issues/3512#issuecomment-1267053890
 # NOTE: Long interval is necessary so container is not closed during vscode initialization
