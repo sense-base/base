@@ -4,8 +4,20 @@
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder}/../sense_eeg,target=/workspace/,type=bind,consistency=cached", 
-	"workspaceFolder": "/workspace",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/sense-base,type=bind,consistency=cached",
+	"workspaceFolder": "/workspace/sense-base",
+	"mounts": [
+		{
+			"source": "${localWorkspaceFolder}/../sense_eeg",
+			"target": "/workspace/sense-base/sense_eeg",
+			"type": "bind"
+		},
+		{
+			"source": "${localWorkspaceFolder}/../sense_msgs",
+			"target": "/workspace/sense-base/sense_msgs",
+			"type": "bind"
+		}
+	],
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
 		"XAUTHORITY": "/root/.Xauthority"

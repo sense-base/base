@@ -102,7 +102,15 @@ RUN apt-get update -q && add-apt-repository universe && \
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
-RUN . /opt/ros/${ROS_DISTRO}/setup.sh
+
+## ROS2 Environment Setup
+RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
+RUN echo '#!/usr/bin/env bash' > /ros_entrypoint.sh
+RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> /ros_entrypoint.sh
+RUN echo 'exec "$@"' >> /ros_entrypoint.sh
+RUN chmod +x /ros_entrypoint.sh
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
 
 # Allow container to stop. See: https://github.com/microsoft/vscode-remote-release/issues/3512#issuecomment-1267053890
 # NOTE: Long interval is necessary so container is not closed during vscode initialization
