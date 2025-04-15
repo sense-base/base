@@ -30,7 +30,10 @@ ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
 ENV ROS_PYTHON_VERSION=3
 ENV ROS_VERSION=2
 
-RUN echo "Europe/London" > /etc/localtime ; echo "CUDA Version 12.1.0" > /usr/local/cuda/version.txt
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
+# RUN echo "" > /etc/localtime
+RUN echo "CUDA Version 12.1.0" > /usr/local/cuda/version.txt
 
 #############################
 # Install necessary libraries
@@ -123,3 +126,13 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PYTHYONPATH="$VIRTUAL_ENV/lib/python3.10/site-packages:$PYTHONPATH"
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/ pip install -r requirements.txt
+
+## ROS2 Environment Setup
+RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
+RUN echo '#!/usr/bin/env bash' > /ros_entrypoint.sh
+RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> /ros_entrypoint.sh
+RUN echo 'exec "$@"' >> /ros_entrypoint.sh
+RUN chmod +x /ros_entrypoint.sh
+
+ENTRYPOINT ["/ros_entrypoint.sh"]
+
