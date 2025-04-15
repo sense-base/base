@@ -123,5 +123,3 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 ENV PYTHYONPATH="$VIRTUAL_ENV/lib/python3.10/site-packages:$PYTHONPATH"
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/ pip install -r requirements.txt
-
-# RUN pip3 install torch torchvision timm opencv-python transforms3d pyopengl setuptools==58.2.0 albumentations --no-binary albumentations,qudida

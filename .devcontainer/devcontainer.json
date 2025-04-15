@@ -19,6 +19,7 @@
 		// "--device-cgroup-rule=c 189:* rwm",
 		// "--runtime=nvidia",
 		"--ipc=host",
+		"--network=host",
 		"--device", "nvidia.com/gpu=all",
 		// "--gpus=all",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
