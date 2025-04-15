@@ -1,13 +1,25 @@
 {
-	"name": "base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
+	"name": "sense-base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder}/../sense_eeg,target=/workspace/,type=bind,consistency=cached", 
-	"workspaceFolder": "/workspace",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/sense-base,type=bind,consistency=cached",
+	"workspaceFolder": "/workspace/sense-base",
+	"mounts": [
+		{
+			"source": "${localWorkspaceFolder}/../sense_eeg",
+			"target": "/workspace/sense-base/sense_eeg",
+			"type": "bind"
+		},
+		{
+			"source": "${localWorkspaceFolder}/../sense_msgs",
+			"target": "/workspace/sense-base/sense_msgs",
+			"type": "bind"
+		}
+	],
 	"containerEnv": {
-		"DISPLAY": ":0",
+		"DISPLAY": "${localEnv:DISPLAY}",
 		"XAUTHORITY": "/root/.Xauthority"
 	},
 	"privileged": true,

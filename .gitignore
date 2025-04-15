@@ -1,1 +1,9 @@
 *.swp
+**/workspace
+.vscode
+build/
+install/
+log/
+rosbag2_*
+sense_eeg
+sense_eeg
