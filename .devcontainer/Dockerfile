@@ -1,4 +1,10 @@
-FROM docker.io/nvidia/cuda:12.5.0-devel-ubuntu22.04
+ARG UBUNTU_RELEASE_YEAR=22
+ARG UBUNTU_RELEASE_MONTH=04
+ARG CUDA_MAJOR=12
+ARG CUDA_MINOR=1
+ARG CUDA_PATCH=1
+
+FROM docker.io/nvidia/cuda:${CUDA_MAJOR}.${CUDA_MINOR}.${CUDA_PATCH}-devel-ubuntu${UBUNTU_RELEASE_YEAR}.${UBUNTU_RELEASE_MONTH} as base
 
 ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
@@ -24,7 +30,7 @@ ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
 ENV ROS_PYTHON_VERSION=3
 ENV ROS_VERSION=2
 
-RUN echo "Europe/London" > /etc/localtime ; echo "CUDA Version 12.5.0" > /usr/local/cuda/version.txt
+RUN echo "Europe/London" > /etc/localtime ; echo "CUDA Version 12.1.0" > /usr/local/cuda/version.txt
 
 #############################
 # Install necessary libraries
@@ -59,25 +65,22 @@ RUN apt-get update -qq && \
     bash-completion && \
     rm -rf /var/lib/apt/lists/*
 
-###########################
-# Install pip requirements
-###########################
-RUN pip3 install --upgrade pip==24.1
-RUN pip3 install torch torchvision timm opencv-python transforms3d pyopengl setuptools==58.2.0 albumentations --no-binary albumentations,qudida
-
-################
-# STEREOLABS ZED
-################
-# comment out the following line on non-GPU platforms
-RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
+#####################################
+# ZED SDK
+#####################################
+# # comment out the following line on non-GPU platforms
+RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
     rm ZED_SDK_Linux_Ubuntu22.run && \
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /root/Documents/ZED/
 
+# # Download ZED AI models directly into the container
+RUN /usr/local/zed/tools/ZED_Diagnostic -nrlo
+
 ######
-# ROS 
+# ROS
 ######
 RUN apt-get update -q && add-apt-repository universe && \
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
@@ -93,13 +96,32 @@ RUN apt-get update -q && add-apt-repository universe && \
     ros-${ROS_DISTRO}-diagnostic-updater \
     ros-${ROS_DISTRO}-robot-localization \
     ros-${ROS_DISTRO}-common-interfaces \
-    ros-${ROS_DISTRO}-rmw-cyclonedds-cpp && \
-    rm -rf /var/lib/apt/lists/*
+    ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
+    ros-${ROS_DISTRO}-rosbag2-storage-mcap 
+    # ros-${ROS_DISTRO}-image-transport-plugin \
+    # ros-${ROS_DISTRO}-compressed-image_transport \
+    # ros-${ROS_DISTRO}-compressed-depth-image-transport \
+    # ros-${ROS_DISTRO}-theora-image-transport \
+    # ros-${ROS_DISTRO}-ffmpeg-image-transport \
+    # ros-${ROS_DISTRO}-ffmpeg-encoder-decoder \
+    # ros-${ROS_DISTRO}-point-cloud-transport-plugins \
+    # ros-${ROS_DISTRO}-draco-point-cloud-transport \
+    # ros-${ROS_DISTRO}-zlib-point-cloud-transport \
+    # ros-${ROS_DISTRO}-zed-msgs \
+    # ros-${ROS_DISTRO}-cob-srvs && \
+    # rm -rf /var/lib/apt/lists/*
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
 
-# Allow container to stop. See: https://github.com/microsoft/vscode-remote-release/issues/3512#issuecomment-1267053890
-# NOTE: Long interval is necessary so container is not closed during vscode initialization
-CMD while sleep 120 && ps aux | egrep 'vscode.*[b]ootstrap-fork.*extensionHost.*' > /dev/null; do :; done
+###########################
+# Install pip requirements
+###########################
+ENV VIRTUAL_ENV=/root/venv
+RUN python3 -m venv $VIRTUAL_ENV --system-site-packages
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHYONPATH="$VIRTUAL_ENV/lib/python3.10/site-packages:$PYTHONPATH"
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/ pip install -r requirements.txt
+
+# RUN pip3 install torch torchvision timm opencv-python transforms3d pyopengl setuptools==58.2.0 albumentations --no-binary albumentations,qudida

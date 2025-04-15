@@ -1,10 +1,10 @@
 {
-	"name": "base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
+	"name": "SENSE_BASE (cuda-12.1.0-devel-ubuntu22.04)",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder}/../sense_eeg,target=/workspace/,type=bind,consistency=cached", 
+	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind,consistency=cached", 
 	"workspaceFolder": "/workspace",
 	"containerEnv": {
 		"DISPLAY": ":0",
@@ -13,12 +13,14 @@
 	"privileged": true,
 	"runArgs": [
 		"--rm",
-		"--shm-size=1g",
+		// "--shm-size=1g",
 		// comment out the following lines on non-linux systems (line 18 to 23)
-		"--device-cgroup-rule=c *:* rmw",
-		"--device-cgroup-rule=c 189:* rwm",
-		"--runtime=nvidia",
-		"--gpus=all",
+		// "--device-cgroup-rule=c *:* rmw",
+		// "--device-cgroup-rule=c 189:* rwm",
+		// "--runtime=nvidia",
+		"--ipc=host",
+		"--device", "nvidia.com/gpu=all",
+		// "--gpus=all",
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
@@ -33,6 +35,5 @@
 				"vscodevim.vim"
 			]
 		}
-	},
-	"overrideCommand": false
+	}
 }
