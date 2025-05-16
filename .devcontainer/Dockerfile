@@ -1,4 +1,11 @@
-FROM docker.io/nvidia/cuda:12.5.0-devel-ubuntu22.04
+ARG UBUNTU_RELEASE_YEAR=22
+ARG UBUNTU_RELEASE_MONTH=04
+ARG CUDA_MAJOR=12
+ARG CUDA_MINOR=1
+ARG CUDA_PATCH=1
+
+FROM python:3.10-slim-bookworm
+FROM docker.io/nvidia/cuda:${CUDA_MAJOR}.${CUDA_MINOR}.${CUDA_PATCH}-devel-ubuntu${UBUNTU_RELEASE_YEAR}.${UBUNTU_RELEASE_MONTH} AS base
 
 ENV LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
@@ -6,45 +13,87 @@ ARG USERNAME=root
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
-# Disable GPU-specific variables on non-GPU platforms like macOS
-# This will be handled by build args or runtime settings.
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES \
-    ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}compute,video,utility,graphics
-ENV QT_X11_NO_MITSHM 1
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}compute,video,utility,graphics
+ENV QT_X11_NO_MITSHM=1
+
+
+ENV TZ=Europe/London
+RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
+# RUN echo "" > /etc/localtime
+RUN echo "CUDA Version 12.1.1" > /usr/local/cuda/version.txt
+
+
+
+# #############################
+# # Setting up uv environment
+# #############################
+# # Install uv (Rust-based Python package manager, faster than pip)
+# FROM python:3.10-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Add uv to PATH
+ENV PATH="/root/.local/bin/:$PATH"
+
+# # # Create uv virtual environment and install dependencies
+RUN uv venv --python 3.10 --system-site-packages
+RUN echo 'source .venv/bin/activate' >> ~/.bashrc
+# RUN uv pip install -U pip argcomplete setuptools colcon-common-extensions 
+
+
+######
+# Setting up ROS2
+######
+
+
+# Setup the sources
+RUN apt-get update -qq && apt-get install -y software-properties-common curl && \
+    add-apt-repository universe && \
+    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
 
 # General environment variables
-ENV PIP_ROOT_USER_ACTION=ignore
 ENV ROS_DISTRO=humble
 ENV AMENT_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV COLCON_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib
 ENV PATH=/opt/ros/${ROS_DISTRO}/bin:$PATH
-ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
+# ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
+ENV PYTHONPATH=/workspace/.venv/lib/python3.10/site-package
 ENV ROS_PYTHON_VERSION=3
 ENV ROS_VERSION=2
 
-ENV TZ=Europe/London
-RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
-# RUN echo "" > /etc/localtime
-RUN echo "CUDA Version 12.5.0" > /usr/local/cuda/version.txt
 
-#############################
-# Install necessary libraries
-#############################
-RUN apt-get update -qq && \
-    apt-get install -y --no-install-recommends \
+# Install ROS 2 packages
+RUN apt-get update -qq && apt-get upgrade -y && \
+    apt-get install -y \
+    ros-${ROS_DISTRO}-desktop \
+    ros-dev-tools
+
+#     ros-${ROS_DISTRO}-grid-map-rviz-plugin \
+#     ros-${ROS_DISTRO}-ament-cmake-clang-format \
+#     ros-${ROS_DISTRO}-xacro \
+#     ros-${ROS_DISTRO}-nmea-msgs \
+#     ros-${ROS_DISTRO}-geographic-msgs \
+#     ros-${ROS_DISTRO}-diagnostic-updater \
+#     ros-${ROS_DISTRO}-robot-localization \
+#     ros-${ROS_DISTRO}-common-interfaces \
+#     ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
+#     ros-${ROS_DISTRO}-rosbag2-storage-mcap 
+
+
+# install bootstrap tools
+RUN apt-get update && apt-get install --no-install-recommends -y \
     build-essential \
     cmake \
-    python3 \
     gdb \
     git \
     git-core \
     bash-completion \
     openssh-client \
-    python3-argcomplete \
-    python3-pip \
     vim \
+    tree \
     lsb-release \
     wget \
     less \
@@ -53,65 +102,37 @@ RUN apt-get update -qq && \
     sudo \
     libpng-dev \
     libgomp1 \
-    python3-venv \
     file \
     libmagic-mgc \
     libmagic1 \
     software-properties-common \
     curl \
-    bash-completion && \
-    rm -rf /var/lib/apt/lists/*
+    bash-completion \
+    && rm -rf /var/lib/apt/lists/*
 
-###########################
-# Install pip requirements
-###########################
-RUN pip3 install --upgrade pip==24.1
-RUN pip3 install torch torchvision timm opencv-python transforms3d pyopengl setuptools==58.2.0 albumentations --no-binary albumentations,qudida
-
-################
-# STEREOLABS ZED
-################
-# comment out the following line on non-GPU platforms
-RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/4.1/cu121/ubuntu22 && \
-    chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
-    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-    rm ZED_SDK_Linux_Ubuntu22.run && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /root/Documents/ZED/
-
-######
-# ROS 
-######
-RUN apt-get update -q && add-apt-repository universe && \
-    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
-    apt-get update -q && apt-get install --no-install-recommends -y \
-    ros-dev-tools \
-    ros-${ROS_DISTRO}-desktop \
-    ros-${ROS_DISTRO}-grid-map-rviz-plugin \
-    ros-${ROS_DISTRO}-ament-cmake-clang-format \
-    ros-${ROS_DISTRO}-xacro \
-    ros-${ROS_DISTRO}-nmea-msgs \
-    ros-${ROS_DISTRO}-geographic-msgs \
-    ros-${ROS_DISTRO}-diagnostic-updater \
-    ros-${ROS_DISTRO}-robot-localization \
-    ros-${ROS_DISTRO}-common-interfaces \
-    ros-${ROS_DISTRO}-rmw-cyclonedds-cpp && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-
+# bootstrap rmw_cyclonedds_cpp and rosdep 
+# ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
+
+
+# #####################################
+# # ZED SDK
+# #####################################
+# # # comment out the following line on non-GPU platforms
+# RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
+#     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
+#     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
+#     rm ZED_SDK_Linux_Ubuntu22.run && \
+#     rm -rf /var/lib/apt/lists/*
+# RUN mkdir -p /root/Documents/ZED/
+
 
 ## ROS2 Environment Setup
 RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
+RUN echo 'source .venv/bin/activate' >> /ros_entrypoint.sh
 RUN echo '#!/usr/bin/env bash' > /ros_entrypoint.sh
 RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> /ros_entrypoint.sh
 RUN echo 'exec "$@"' >> /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
-
-# Allow container to stop. See: https://github.com/microsoft/vscode-remote-release/issues/3512#issuecomment-1267053890
-# NOTE: Long interval is necessary so container is not closed during vscode initialization
-CMD while sleep 120 && ps aux | egrep 'vscode.*[b]ootstrap-fork.*extensionHost.*' > /dev/null; do :; done

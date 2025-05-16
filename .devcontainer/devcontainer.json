@@ -1,28 +1,16 @@
 {
-	"name": "sense-base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
+	"name": "base ROS2 with cuda-12.6.0-devel-ubuntu24.04",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/sense-base,type=bind,consistency=cached",
-	"workspaceFolder": "/workspace/sense-base",
-	"mounts": [
-		{
-			"source": "${localWorkspaceFolder}/../sense_eeg",
-			"target": "/workspace/sense-base/sense_eeg",
-			"type": "bind"
-		},
-		{
-			"source": "${localWorkspaceFolder}/../sense_msgs",
-			"target": "/workspace/sense-base/sense_msgs",
-			"type": "bind"
-		}
-	],
+	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind", 
+	"workspaceFolder": "/workspace",
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
-		"XAUTHORITY": "/root/.Xauthority"
-	},
-	"privileged": true,
+		"XAUTHORITY": "/root/.Xauthority",
+		"NVIDIA_DRIVER_CAPABILITIES": "all"
+		},
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
@@ -36,15 +24,20 @@
 	],
 	"remoteUser": "root",
 	"containerUser": "root",
-	"postStartCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename}",
+	"postStartCommand": "",
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"ms-iot.vscode-ros",
 				"charliermarsh.ruff",
-				"vscodevim.vim"
+				"vscodevim.vim",
+				"ms-python.python",
+				"ms-toolsai.datawrangler",
+				"ms-python.debugpy",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.jupyter-keymap",
+				"Github.copilot"
 			]
 		}
-	},
-	"overrideCommand": false
+	}
 }
