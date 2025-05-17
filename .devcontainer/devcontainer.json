@@ -1,16 +1,29 @@
 {
-	"name": "base ROS2 with cuda-12.6.0-devel-ubuntu24.04",
+	"name": "SENSE_BASE (ROS 2 + CUDA 12.1.1 + Ubuntu 22.04)",
+	"description": "ROS2 development container with CUDA support and GUI capabilities",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
+
+	// Workspace configuration
 	"workspaceMount": "source=${localWorkspaceFolder}/workspace,target=/workspace/,type=bind", 
 	"workspaceFolder": "/workspace",
+
+	// Environment variables
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
 		"XAUTHORITY": "/root/.Xauthority",
-		"NVIDIA_DRIVER_CAPABILITIES": "all"
-		},
+		"NVIDIA_DRIVER_CAPABILITIES": "all",
+		"DEBIAN_FRONTEND": "noninteractive"
+	},
+
+	// Security and permissions
+	"privileged": true,
+	"remoteUser": "root",
+	"containerUser": "root",
+
+	// Runtime arguments
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
@@ -22,21 +35,17 @@
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
-	"remoteUser": "root",
-	"containerUser": "root",
-	"postStartCommand": "",
+
+	// Post-creation commands
+  	"postCreateCommand": "echo 'Container ready!'",
+
+	// VS Code customizations
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"ms-iot.vscode-ros",
 				"charliermarsh.ruff",
-				"vscodevim.vim",
-				"ms-python.python",
-				"ms-toolsai.datawrangler",
-				"ms-python.debugpy",
-				"ms-toolsai.jupyter",
-				"ms-toolsai.jupyter-keymap",
-				"Github.copilot"
+				"vscodevim.vim"
 			]
 		}
 	}
