@@ -4,7 +4,6 @@ ARG CUDA_MAJOR=12
 ARG CUDA_MINOR=1
 ARG CUDA_PATCH=1
 
-FROM python:3.10-slim-bookworm
 FROM docker.io/nvidia/cuda:${CUDA_MAJOR}.${CUDA_MINOR}.${CUDA_PATCH}-devel-ubuntu${UBUNTU_RELEASE_YEAR}.${UBUNTU_RELEASE_MONTH} AS base
 
 ENV LANG=C.UTF-8
@@ -20,25 +19,8 @@ ENV QT_X11_NO_MITSHM=1
 
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
-# RUN echo "" > /etc/localtime
 RUN echo "CUDA Version 12.1.1" > /usr/local/cuda/version.txt
 
-
-
-# #############################
-# # Setting up uv environment
-# #############################
-# # Install uv (Rust-based Python package manager, faster than pip)
-# FROM python:3.10-slim-bookworm
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-
-# Add uv to PATH
-ENV PATH="/root/.local/bin/:$PATH"
-
-# # # Create uv virtual environment and install dependencies
-RUN uv venv --python 3.10 --system-site-packages
-RUN echo 'source .venv/bin/activate' >> ~/.bashrc
-# RUN uv pip install -U pip argcomplete setuptools colcon-common-extensions 
 
 
 ######
@@ -59,8 +41,8 @@ ENV AMENT_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV COLCON_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib
 ENV PATH=/opt/ros/${ROS_DISTRO}/bin:$PATH
-# ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
-ENV PYTHONPATH=/workspace/.venv/lib/python3.10/site-package
+#to remove? ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
+ENV PYTHONPATH=/ros2_ws/.venv/lib/python3.10/site-package
 ENV ROS_PYTHON_VERSION=3
 ENV ROS_VERSION=2
 
@@ -69,18 +51,19 @@ ENV ROS_VERSION=2
 RUN apt-get update -qq && apt-get upgrade -y && \
     apt-get install -y \
     ros-${ROS_DISTRO}-desktop \
-    ros-dev-tools
+    ros-${ROS_DISTRO}-grid-map-rviz-plugin \
+    ros-${ROS_DISTRO}-ament-cmake-clang-format \
+    ros-${ROS_DISTRO}-xacro \
+    ros-${ROS_DISTRO}-nmea-msgs \
+    ros-${ROS_DISTRO}-geographic-msgs \
+    ros-${ROS_DISTRO}-diagnostic-updater \
+    ros-${ROS_DISTRO}-robot-localization \
+    ros-${ROS_DISTRO}-common-interfaces \
+    ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
+    ros-${ROS_DISTRO}-rosbag2-storage-mcap 
 
-#     ros-${ROS_DISTRO}-grid-map-rviz-plugin \
-#     ros-${ROS_DISTRO}-ament-cmake-clang-format \
-#     ros-${ROS_DISTRO}-xacro \
-#     ros-${ROS_DISTRO}-nmea-msgs \
-#     ros-${ROS_DISTRO}-geographic-msgs \
-#     ros-${ROS_DISTRO}-diagnostic-updater \
-#     ros-${ROS_DISTRO}-robot-localization \
-#     ros-${ROS_DISTRO}-common-interfaces \
-#     ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
-#     ros-${ROS_DISTRO}-rosbag2-storage-mcap 
+# bootstrap rmw_cyclonedds_cpp 
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 
 # install bootstrap tools
@@ -110,29 +93,55 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     bash-completion \
     && rm -rf /var/lib/apt/lists/*
 
-# bootstrap rmw_cyclonedds_cpp and rosdep 
-# ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-RUN rosdep init && rosdep update --rosdistro $ROS_DISTRO
+# #############################
+# # Setting up uv environment
+# #############################
+# # Install uv (Rust-based Python package manager, faster than pip)
+# ?NONEED? FROM python:3.10-slim-bookworm
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# Add uv to PATH
+ENV PATH="/root/.local/bin/:$PATH"
 
-# #####################################
-# # ZED SDK
-# #####################################
-# # # comment out the following line on non-GPU platforms
-# RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
-#     chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
-#     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-#     rm ZED_SDK_Linux_Ubuntu22.run && \
-#     rm -rf /var/lib/apt/lists/*
-# RUN mkdir -p /root/Documents/ZED/
+WORKDIR /ros2_ws
+COPY ./workspace/src ./src
+COPY ./.devcontainer/postCreate.bash .
 
+# Create uv virtual environment and install dependencies
+RUN uv venv --python 3.10 --system-site-packages
+RUN . .venv/bin/activate
+RUN uv pip install -U pip argcomplete setuptools==58.2.0 bloom colcon-common-extensions rosdep vcstool lark numpy
+
+##COMMENTS TO BE REMOVED?
+# pip deps from ros-dev-tools #Vhttps://discourse.ros.org/t/ros-developer-tools-now-in-binary-form/29802
+# uv pip list --verbose
+# why setuptools 80.7.1 does not work? #https://robotics.stackexchange.com/questions/101255/setuptoolsdeprecationwarning-setup-py-install-is-deprecated-use-build-and-pip
+## run postCreate.bash script for rosdep, the follwoing commented lines are jus referneces (to be removed)
+# RUN . /opt/ros/${ROS_DISTRO}/setup.bash 
+# RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" 
+# RUN rosdep init && rosdep update --rosdistro ${ROS_DISTRO}
+# RUN rosdep install --from-paths src --ignore-src -r -y --rosdistro ${ROS_DISTRO}
+
+#####################################
+# ZED SDK
+#####################################
+# comment out the following lines on non-GPU platforms
+RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
+    chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
+    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
+    rm ZED_SDK_Linux_Ubuntu22.run && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /root/Documents/ZED/
 
 ## ROS2 Environment Setup
+### Adding all the necessary ros sourcing
+RUN echo "" >> ~/.bashrc
+RUN echo "## ROS2" >> ~/.bashrc
 RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> ~/.bashrc
-RUN echo 'source .venv/bin/activate' >> /ros_entrypoint.sh
+RUN echo 'source /ros2_ws/.venv/bin/activate' >> ~/.bashrc
+### Setting and calling the entrypoint
 RUN echo '#!/usr/bin/env bash' > /ros_entrypoint.sh
-RUN echo 'source /opt/ros/${ROS_DISTRO}/setup.bash' >> /ros_entrypoint.sh
+RUN echo 'source $HOME/.bashrc' >> /ros_entrypoint.sh
 RUN echo 'exec "$@"' >> /ros_entrypoint.sh
 RUN chmod +x /ros_entrypoint.sh
-
 ENTRYPOINT ["/ros_entrypoint.sh"]
