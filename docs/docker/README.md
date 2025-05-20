@@ -1,11 +1,17 @@
 # Getting started with Docker images and ROS 2 package builds
 
 ## Requirements
-* Ubuntu 22.04 LTS (Jammy Jellyfish). See [release cycle](https://ubuntu.com/about/release-cycle).
+### Software
+* Laptop with GNU/Linux Ubuntu 22.04 LTS (Jammy Jellyfish). See [release cycle](https://ubuntu.com/about/release-cycle).
 * Install docker tools 
   * In GNU/Linux: [:link:](https://docs.docker.com/engine/install) and [:link:](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04).
   * In Mac or Windows: [:link:](https://www.docker.com/products/docker-desktop/).
 * ROS2 [Humble Hawksbill](https://docs.ros.org/en/foxy/Releases/Release-Humble-Hawksbill.html). See [List of Distributions](https://docs.ros.org/en/foxy/Releases.html#list-of-distributions).
+
+### Hardware 
+* GPU-laptop
+* ZED Stereo Camera
+* g.USBAMP RESEARCH
 
 ## Setting up ros2-based packages in the workspace
 
@@ -17,7 +23,7 @@ git@github.com:sense-base/sense_eeg.git
 git@github.com:sense-base/sense_msgs.git
 ```
 
-## Using `Visual Studio Code` either on GNU/Linux or MacOS
+## Using `Visual Studio Code` either on GNU/Linux Ubuntu
 Open your project [VSCode](https://code.visualstudio.com/) that requires [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension. 
 Once the project is open in VS Code, you will see a prompt to `Reopen in Container`. 
 Click it to start building the container. 
@@ -49,25 +55,16 @@ baseros2      latest  <ID>          <time lenght>         23.1GB
 bash stop_container_and_removeit.bash
 ```
 
-## MacOS
+## MacOS (not fully supported)
+Using the provided Dockerfile and devcontainer setup on macOS has some limitations due to the lack of GPU passthrough and X11 support. 
+However, you can still use the container to develop ROS2 applications with some limitations and adjustments.
+* Limitations:
+   * **No NVIDIA GPU Passthrough**: macOS does not support passing an NVIDIA GPU to Docker containers. As a result, GPU-dependent features, such as the ZED SDK, cannot be used inside the container.
+   * **No XAUTHORITY Support:** X11 forwarding is not supported on macOS.
 
-Using the provided Dockerfile and devcontainer setup on macOS has some limitations due to the lack of GPU passthrough and X11 support. However, you can still use the container to develop ROS2 applications with some adjustments.
-
-### Limitations:
-1. **No NVIDIA GPU Passthrough:**
-   - macOS does not support passing an NVIDIA GPU to Docker containers. As a result, GPU-dependent features, such as the ZED SDK, cannot be used inside the container.
-   
-2. **No XAUTHORITY Support:**
-   - X11 forwarding is not supported on macOS.
-
-### Adjustments for macOS:
-To make the container work on macOS, you need to comment out or remove certain lines in the Dockerfile and devcontainer.json:
-
-1. **In the Dockerfile:**
-   - Comment out the lines related to the ZED SDK. See the relevant section in the [Dockerfile](../../.devcontainer/Dockerfile).
-
-2. **In devcontainer.json:**
-   - Comment out or remove the lines related to GPU and XAUTHORITY. See the relevant section in [devcontainer.json](../../.devcontainer/devcontainer.json).
+* Container Adjustments for macOS:
+   * **In the Dockerfile:** Comment out the lines related to the ZED SDK. See the relevant section in the [Dockerfile](../../.devcontainer/Dockerfile).
+   * **In devcontainer.json:** Comment out or remove the lines related to GPU and XAUTHORITY. See the relevant section in [devcontainer.json](../../.devcontainer/devcontainer.json).
 
 ## References
 ### Few useful commands to manage your docker images
