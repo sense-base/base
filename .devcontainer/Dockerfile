@@ -23,9 +23,9 @@ RUN echo "CUDA Version 12.1.1" > /usr/local/cuda/version.txt
 
 
 
-######
+#####################################
 # Setting up ROS2
-######
+#####################################
 
 
 # Setup the sources
@@ -41,7 +41,6 @@ ENV AMENT_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV COLCON_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib
 ENV PATH=/opt/ros/${ROS_DISTRO}/bin:$PATH
-#to remove? ENV PYTHONPATH=/opt/ros/${ROS_DISTRO}/lib/python3.10/site-packages
 ENV PYTHONPATH=/ros2_ws/.venv/lib/python3.10/site-package
 ENV ROS_PYTHON_VERSION=3
 ENV ROS_VERSION=2
@@ -93,11 +92,22 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     bash-completion \
     && rm -rf /var/lib/apt/lists/*
 
+#####################################
+# ZED SDK
+#####################################
+# comment out the following lines on non-GPU platforms
+RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
+    chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
+    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
+    rm ZED_SDK_Linux_Ubuntu22.run && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /root/Documents/ZED/
+
+
 # #############################
 # # Setting up uv environment
 # #############################
-# # Install uv (Rust-based Python package manager, faster than pip)
-# ?NONEED? FROM python:3.10-slim-bookworm
+# Install uv (Rust-based Python package manager, faster than pip)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Add uv to PATH
@@ -111,29 +121,15 @@ COPY ./.devcontainer/rosdep-init.bash .
 RUN uv venv --python 3.10 --system-site-packages
 RUN . .venv/bin/activate
 RUN uv pip install -U pip argcomplete setuptools==58.2.0 bloom colcon-common-extensions rosdep vcstool lark numpy
-
-##COMMENTS TO BE REMOVED?
+# Notes (not sure where to put them but here are some)
 # pip deps from ros-dev-tools #Vhttps://discourse.ros.org/t/ros-developer-tools-now-in-binary-form/29802
-# uv pip list --verbose
 # why setuptools 80.7.1 does not work? #https://robotics.stackexchange.com/questions/101255/setuptoolsdeprecationwarning-setup-py-install-is-deprecated-use-build-and-pip
-## run postCreate.bash script for rosdep, the follwoing commented lines are jus referneces (to be removed)
-# RUN . /opt/ros/${ROS_DISTRO}/setup.bash 
-# RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash" 
-# RUN rosdep init && rosdep update --rosdistro ${ROS_DISTRO}
-# RUN rosdep install --from-paths src --ignore-src -r -y --rosdistro ${ROS_DISTRO}
+# uv pip list --verbose #see all installed packages
+
 
 #####################################
-# ZED SDK
+# ROS2 Environment Setup and entrypoint
 #####################################
-# comment out the following lines on non-GPU platforms
-RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
-    chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
-    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-    rm ZED_SDK_Linux_Ubuntu22.run && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /root/Documents/ZED/
-
-## ROS2 Environment Setup
 ### Adding all the necessary ros sourcing
 RUN echo "" >> ~/.bashrc
 RUN echo "## ROS2" >> ~/.bashrc

@@ -27,7 +27,7 @@
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
-		// comment out the following lines on non-linux systems (line 18 to 23)
+		// comment the following six lines on non-linux systems
 		"--device-cgroup-rule=c *:* rmw",
 		"--device-cgroup-rule=c 189:* rwm",
 		"--runtime=nvidia",
