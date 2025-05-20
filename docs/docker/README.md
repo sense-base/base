@@ -1,44 +1,51 @@
-# Setting up and building docker images
+# Getting started with Docker images and ROS 2 package builds
 
 ## Requirements
+* Ubuntu 22.04 LTS (Jammy Jellyfish). See [release cycle](https://ubuntu.com/about/release-cycle).
 * Install docker tools 
   * In GNU/Linux: [:link:](https://docs.docker.com/engine/install) and [:link:](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04).
   * In Mac or Windows: [:link:](https://www.docker.com/products/docker-desktop/).
+* ROS2 [Humble Hawksbill](https://docs.ros.org/en/foxy/Releases/Release-Humble-Hawksbill.html). See [List of Distributions](https://docs.ros.org/en/foxy/Releases.html#list-of-distributions).
 
-## Using [Visual Studio Code](https://code.visualstudio.com/) either on GNU/Linux or MacOS
-Open your project VSCode that requires [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension. Once project is open in VSCode you will automatically see and click `Reopen in Container`.
+## Setting up ros2-based packages in the workspace
 
-## Using terminal in GNU/Linux OS distributions
-### Build docker image
-* Building estimated time will depend on internet speed connetion
-```
-#cd root path of repo
-cd docs/docker
-docker compose -f docker-compose.yml build
+```bash
+git clone git@github.com:sense-base/base.git
+cd base
+mkdir -p workspace/src && cd workspace/src
+git@github.com:sense-base/sense_eeg.git
+git@github.com:sense-base/sense_msgs.git
 ```
 
-### Checking built docker image
+## Using `Visual Studio Code` either on GNU/Linux or MacOS
+Open your project [VSCode](https://code.visualstudio.com/) that requires [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers&ssr=false#review-details) extension. 
+Once the project is open in VS Code, you will see a prompt to `Reopen in Container`. 
+Click it to start building the container. 
+After that, open a terminal to begin working inside the container.
+
+## Launch docker image initalise rosdep
+To initialise rosdep, run:
+```bash
+(ros2_ws) root@:/ros2_ws# bash rosdep-init.bash 
 ```
+
+Once that's done, you can continue with the usual steps:
+```bash
+colcon build --symlink-install
+source install/setup.bash
+ros2 launch eeg_publisher mock_publisher_launch.py
+```
+
+## Useful commands in terminal
+* Checking built docker image
+```bash
 docker images
 #REPOSITORY   TAG     IMAGE ID      CREATED         SIZE
 baseros2      latest  <ID>          <time lenght>         23.1GB
 ```
 
-### Launch and test docker image
-```
-bash launch_image.bash
-
-# source ROS environment
-source /opt/ros/humble/setup.bash
-# sanity checks and display topics
-ros2 wtf
-ros2 topic list
-
-type `exit` to exit container
-```
-
-### Stop container and remove it
-```
+* Stop container and remove it
+```bash
 bash stop_container_and_removeit.bash
 ```
 
@@ -57,14 +64,14 @@ Using the provided Dockerfile and devcontainer setup on macOS has some limitatio
 To make the container work on macOS, you need to comment out or remove certain lines in the Dockerfile and devcontainer.json:
 
 1. **In the Dockerfile:**
-   - Comment out the lines related to the ZED SDK. See the relevant section in the [Dockerfile](../../.devcontainer/Dockerfile#L73-L79).
+   - Comment out the lines related to the ZED SDK. See the relevant section in the [Dockerfile](../../.devcontainer/Dockerfile).
 
 2. **In devcontainer.json:**
-   - Comment out or remove the lines related to GPU and XAUTHORITY. See the relevant section in [devcontainer.json](../../.devcontainer/devcontainer.json#L18-L23).
+   - Comment out or remove the lines related to GPU and XAUTHORITY. See the relevant section in [devcontainer.json](../../.devcontainer/devcontainer.json).
 
 ## References
 ### Few useful commands to manage your docker images
-```
+```bash
 docker images
 docker ps
 docker attach <ID>
@@ -80,7 +87,7 @@ sudo systemctl restart docker
 ```
 
 ### Change Name of My Docker Repository and Rename Images
-```
+```bash
 #Please replace the existing image name as well as new repository name  
 docker tag <existing_image>:<tag> <new_repository>:<tag>
 

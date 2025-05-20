@@ -105,7 +105,7 @@ ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /ros2_ws
 COPY ./workspace/src ./src
-COPY ./.devcontainer/postCreate.bash .
+COPY ./.devcontainer/rosdep-init.bash .
 
 # Create uv virtual environment and install dependencies
 RUN uv venv --python 3.10 --system-site-packages
