@@ -1,32 +1,33 @@
 {
-	"name": "sense-base ROS2 with cuda-12.5.0-devel-ubuntu22.04",
+	"name": "SENSE_BASE (ROS 2 + CUDA 12.1.1 + Ubuntu 22.04)",
+	"description": "ROS2 development container with CUDA support and GUI capabilities",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
 	},
-	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/sense-base,type=bind,consistency=cached",
-	"workspaceFolder": "/workspace/sense-base",
-	"mounts": [
-		{
-			"source": "${localWorkspaceFolder}/../sense_eeg",
-			"target": "/workspace/sense-base/sense_eeg",
-			"type": "bind"
-		},
-		{
-			"source": "${localWorkspaceFolder}/../sense_msgs",
-			"target": "/workspace/sense-base/sense_msgs",
-			"type": "bind"
-		}
-	],
+
+	// Workspace configuration
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/,type=bind", 
+	"workspaceFolder": "/ros2_ws",
+
+	// Environment variables
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
-		"XAUTHORITY": "/root/.Xauthority"
+		"XAUTHORITY": "/root/.Xauthority",
+		"NVIDIA_DRIVER_CAPABILITIES": "all",
+		"DEBIAN_FRONTEND": "noninteractive"
 	},
+
+	// Security and permissions
 	"privileged": true,
+	"remoteUser": "root",
+	"containerUser": "root",
+
+	// Runtime arguments
 	"runArgs": [
 		"--rm",
 		"--shm-size=1g",
-		// comment out the following lines on non-linux systems (line 18 to 23)
+		// comment the following six lines on non-linux systems
 		"--device-cgroup-rule=c *:* rmw",
 		"--device-cgroup-rule=c 189:* rwm",
 		"--runtime=nvidia",
@@ -34,9 +35,10 @@
 		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=${localEnv:XAUTHORITY}:/root/.Xauthority"
 	],
-	"remoteUser": "root",
-	"containerUser": "root",
-	"postStartCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename}",
+
+	// Post-creation commands
+	"postCreateCommand": "echo 'Container ready!'",
+	// VS Code customizations
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -45,6 +47,5 @@
 				"vscodevim.vim"
 			]
 		}
-	},
-	"overrideCommand": false
+	}
 }
