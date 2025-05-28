@@ -1,7 +1,7 @@
-ARG UBUNTU_RELEASE_YEAR=22
+ARG UBUNTU_RELEASE_YEAR=24
 ARG UBUNTU_RELEASE_MONTH=04
 ARG CUDA_MAJOR=12
-ARG CUDA_MINOR=1
+ARG CUDA_MINOR=8
 ARG CUDA_PATCH=1
 
 FROM docker.io/nvidia/cuda:${CUDA_MAJOR}.${CUDA_MINOR}.${CUDA_PATCH}-devel-ubuntu${UBUNTU_RELEASE_YEAR}.${UBUNTU_RELEASE_MONTH} AS base
@@ -19,8 +19,7 @@ ENV QT_X11_NO_MITSHM=1
 
 ENV TZ=Europe/London
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
-RUN echo "CUDA Version 12.1.1" > /usr/local/cuda/version.txt
-
+RUN echo "CUDA Version 12.8.1" > /usr/local/cuda/version.txt
 
 
 #####################################
@@ -34,9 +33,9 @@ RUN apt-get update -qq && apt-get install -y software-properties-common curl && 
     curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
-
 # General environment variables
-ENV ROS_DISTRO=humble
+#Notes. Humble OS Ubuntu 22.04; Jazzy Jalisco (jazzy) OS: Ubuntu 24.04 (Noble)
+ENV ROS_DISTRO=jazzy
 ENV AMENT_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV COLCON_PREFIX_PATH=/opt/ros/${ROS_DISTRO}
 ENV LD_LIBRARY_PATH=/opt/ros/${ROS_DISTRO}/lib
@@ -95,14 +94,15 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 #####################################
 # ZED SDK
 #####################################
-# comment out the following lines on non-GPU platforms
-RUN wget -q -O ZED_SDK_Linux_Ubuntu22.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu22 && \
-    chmod +x ZED_SDK_Linux_Ubuntu22.run ; ./ZED_SDK_Linux_Ubuntu22.run silent skip_cuda && \
+RUN wget -q -O ZED_SDK_Linux_ubuntu24.run https://download.stereolabs.com/zedsdk/5.0/cu12/ubuntu24 && \
+    chmod +x ZED_SDK_Linux_ubuntu24.run ; ./ZED_SDK_Linux_ubuntu24.run silent skip_cuda && \
     ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-    rm ZED_SDK_Linux_Ubuntu22.run && \
+    rm ZED_SDK_Linux_ubuntu24.run && \
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /root/Documents/ZED/
-
+# Notes
+# Comment out ZED SDK lines for non-GPU platforms
+# ZED_SDK_Ubuntu24_cuda12.8_tensorrt10.9_v5.0.1.zstd.run is 2.4GB
 
 # #############################
 # # Setting up uv environment
@@ -118,14 +118,15 @@ COPY ./workspace/src ./src
 COPY ./.devcontainer/rosdep-init.bash .
 
 # Create uv virtual environment and install dependencies
-RUN uv venv --python 3.10 --system-site-packages
+RUN uv venv --python 3.12 --system-site-packages
 RUN . .venv/bin/activate
-RUN uv pip install -U pip argcomplete setuptools==58.2.0 bloom colcon-common-extensions rosdep vcstool lark numpy
+RUN uv pip install -U pip argcomplete setuptools==75.6.0 bloom colcon-common-extensions rosdep vcstool lark numpy
 # Notes (not sure where to put them but here are some)
 # pip deps from ros-dev-tools #Vhttps://discourse.ros.org/t/ros-developer-tools-now-in-binary-form/29802
 # why setuptools 80.7.1 does not work? #https://robotics.stackexchange.com/questions/101255/setuptoolsdeprecationwarning-setup-py-install-is-deprecated-use-build-and-pip
+# AttributeError: module 'pkgutil' has no attribute 'ImpImporter'. Did you mean: 'zipimporter'?
+# setuptools==75.6.0 https://github.com/MixLabPro/comfyui-mixlab-nodes/issues/363
 # uv pip list --verbose #see all installed packages
-
 
 #####################################
 # ROS2 Environment Setup and entrypoint

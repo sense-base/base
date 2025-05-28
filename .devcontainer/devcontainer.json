@@ -1,6 +1,6 @@
 {
-	"name": "SENSE_BASE (ROS 2 + CUDA 12.1.1 + Ubuntu 22.04)",
-	"description": "ROS2 development container with CUDA support and GUI capabilities",
+	"name": "SENSE_BASE (ROS 2 + CUDA + Ubuntu )",
+	"description": "ROS2 development container under Ubuntu with CUDA and GUI capabilities.",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ROS_DISTRO=humble
+ROS_DISTRO=jazzy
 
 rosdep fix-permissions
 rosdep init
